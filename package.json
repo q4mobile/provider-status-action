@@ -1,0 +1,24 @@
+{
+  "name": "provider-status-action",
+  "version": "1.0.0",
+  "description": "Github Action addon for checking provider status",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gardarik/provider-status-action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gardarik/provider-status-action/issues"
+  },
+  "homepage": "https://github.com/gardarik/provider-status-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.4.0",
+    "@actions/github": "^5.0.0"
+  }
+}

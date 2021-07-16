@@ -1,0 +1,11 @@
+name: 'Provider status checker'
+description: 'Check your provider/vendor status before deplyoing to prod !'
+author: 'Eugene Belyaev'
+inputs:
+  providers:
+    description: 'List of providers/vendors'
+    required: true
+    default: 'aws.lambda'
+runs:
+  using: 'node12'
+  main: 'index.js'
