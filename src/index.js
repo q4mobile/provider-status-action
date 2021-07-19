@@ -1,12 +1,29 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 
+const dispatcher = require('./dispatcher');
+
 const provs = [
-  'aws.lambda',
-  'auth0',
-  'mongodb-atlas'
+  'aws.appstream2-us-east-1',
+  'aws.apigateway-us-east-1',
+  'aws.route53privatedns-us-east-1',
+  'terraform.cloud',
+  'auth0.q4-conference-dev',
+  'mongodb.atlas'
 ]
 
+const dispatch = async(providers) => {
+  const providerObj = dispatcher.dispatchProviders(providers);
+  const calls = []
+  for (const [prov, pIdentifiers] of Object.entries(providerObj)) {
+    // console.log(`${prov}: ${pIdentifiers}`);
+    calls.push(dispatcher.runProviderStatusCheck(prov, pIdentifiers))
+  }  
+  const results = await Promise.all(calls)
+  return results
+}
+
+(async () => {
 try {
   const providers = core.getInput('providers') || provs;
   console.log(`PROVIDERS = ${providers}!`);
@@ -19,6 +36,9 @@ try {
    * 4 - check group
    * 5 - output result
    */
+
+  const result = await dispatch(providers)
+  console.debug('MAIN RESULT = ', result)
 
   const time = (new Date()).toTimeString();
   core.setOutput("time", time);
@@ -40,3 +60,4 @@ export const summary = async (): Promise<Summary | null> => {
   return (await http.getJson<Summary>(`https://www.githubstatus.com/api/v2/summary.json`)).result;
 };
  */
+})();

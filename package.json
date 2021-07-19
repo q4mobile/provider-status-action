@@ -20,7 +20,8 @@
   "homepage": "https://github.com/gardarik/provider-status-action#readme",
   "dependencies": {
     "@actions/core": "^1.4.0",
-    "@actions/github": "^5.0.0"
+    "@actions/github": "^5.0.0",
+    "@actions/http-client": "^1.0.11"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.29.0"
