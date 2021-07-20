@@ -27,6 +27,7 @@ const dispatch = async (providers) => {
 (async () => {
   try {
     const providers = core.getInput('providers') || provs;
+    console.log('PROVIDERS = ', providers)
     /**
      * 1 - parse providers
      * 2 - validate providers
