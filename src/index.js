@@ -28,7 +28,6 @@ const dispatch = async (providers) => {
   try {
     const providers = core.getInput('providers') || provs;
     /**
-     * @TODO
      * 1 - parse providers
      * 2 - validate providers
      * 3 - split providers to groups
