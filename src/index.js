@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const chalk = require('chalk');
 
 const dispatcher = require('./dispatcher');
 
@@ -7,57 +8,77 @@ const provs = [
   'aws.appstream2-us-east-1',
   'aws.apigateway-us-east-1',
   'aws.route53privatedns-us-east-1',
-  'terraform.cloud',
-  'auth0.q4-conference-dev',
-  'mongodb.atlas'
-]
+  // 'terraform.cloud',
+  // 'auth0.q4-conference-dev',
+  // 'mongodb.atlas'
+];
 
-const dispatch = async(providers) => {
+const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);
-  const calls = []
+  const calls = [];
   for (const [prov, pIdentifiers] of Object.entries(providerObj)) {
     // console.log(`${prov}: ${pIdentifiers}`);
-    calls.push(dispatcher.runProviderStatusCheck(prov, pIdentifiers))
-  }  
-  const results = await Promise.all(calls)
-  return results
-}
+    calls.push(dispatcher.runProviderStatusCheck(prov, pIdentifiers));
+  }
+  const results = await Promise.all(calls);
+  return results;
+};
 
 (async () => {
-try {
-  const providers = core.getInput('providers') || provs;
-  console.log(`PROVIDERS = ${providers}!`);
+  try {
+    const providers = core.getInput('providers') || provs;
+    /**
+     * @TODO
+     * 1 - parse providers
+     * 2 - validate providers
+     * 3 - split providers to groups
+     * 4 - check group
+     * 5 - output result
+     */
 
-  /**
-   * @TODO
-   * 1 - parse providers
-   * 2 - validate providers
-   * 3 - split providers to groups
-   * 4 - check group
-   * 5 - output result
-   */
+    const result = await dispatch(providers);
+    // console.debug('MAIN RESULT = ', result)
+    core.info('\n');
+    result.pop().forEach((stat) => {
+      const message = `[${stat.provider.toUpperCase()} ${stat.service}] `;
+      switch (stat.status) {
+        default:
+        case 0:
+          core.info('✅ ' + chalk.green(message + chalk.bold(stat.message)));
+          break;
 
-  const result = await dispatch(providers)
-  console.debug('MAIN RESULT = ', result)
+        case 1:
+        case 3:
+          core.warning(
+            '✋ ' + chalk.yellow(message + chalk.bold(stat.message))
+          );
+          break;
 
-  const time = (new Date()).toTimeString();
-  core.setOutput("time", time);
-  // Get the JSON webhook payload for the event that triggered the workflow
-  const payload = JSON.stringify(github.context.payload, undefined, 2)
-  console.log(`The event payload: ${payload}`);
-} catch (error) {
-  core.setFailed(error.message);
-}
-
-/**
- * export const status = async (): Promise<Status | null> => {
-  const http: httpm.HttpClient = new httpm.HttpClient('ghaction-github-status');
-  return (await http.getJson<Status>(`https://www.githubstatus.com/api/v2/status.json`)).result;
-};
-
-export const summary = async (): Promise<Summary | null> => {
-  const http: httpm.HttpClient = new httpm.HttpClient('ghaction-github-status');
-  return (await http.getJson<Summary>(`https://www.githubstatus.com/api/v2/summary.json`)).result;
-};
- */
+        case 2:
+          core.error('⛔ ' + chalk.red(message + chalk.bold(stat.message)));
+          break;
+      }
+    });
+    // const time = (new Date()).toTimeString();
+    // core.setOutput("time", time);
+    // Get the JSON webhook payload for the event that triggered the workflow
+    // const payload = JSON.stringify(github.context.payload, undefined, 2)
+    // console.log(`The event payload: ${payload}`);
+  } catch (error) {
+    core.setFailed(error.message);
+  }
 })();
+
+// https://status.hashicorp.com/#
+// https://status.heroku.com/
+//
+//
+
+// CloudFlare Status: https://www.cloudflarestatus.com/history.atom
+// Datadog Status: https://status.datadoghq.com/history.rss
+// DockerHub Status: https://status.docker.com/pages/533c6539221ae15e3f000031/rss
+// GitHub Status: https://www.githubstatus.com/history.rss
+// Hashicorp Status: https://status.hashicorp.com/history.rss
+// PyPi Status: https://status.python.org/
+// Sentry Status: https://status.sentry.io/history.
+////status.auth0.com/feed?domain={YOUR-TENANT}.auth0.com
