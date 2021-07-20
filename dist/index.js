@@ -26546,14 +26546,18 @@ const chalk = __nccwpck_require__(8818);
 
 const dispatcher = __nccwpck_require__(8921);
 
-const provs = [
-  'aws.appstream2-us-east-1',
-  'aws.apigateway-us-east-1',
-  'aws.route53privatedns-us-east-1',
-  // 'terraform.cloud',
-  // 'auth0.q4-conference-dev',
-  // 'mongodb.atlas'
-];
+// const provs = [
+//   'aws.appstream2-us-east-1',
+//   'aws.apigateway-us-east-1',
+//   'aws.route53privatedns-us-east-1',
+//   // 'terraform.cloud',
+//   // 'auth0.q4-conference-dev',
+//   // 'mongodb.atlas'
+// ];
+
+const provs =` aws.appstream2-us-east-1
+ aws.apigateway-us-east-1
+ aws.route53privatedns-us-east-1`
 
 const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);
@@ -26568,8 +26572,11 @@ const dispatch = async (providers) => {
 
 (async () => {
   try {
-    const providers = core.getInput('providers') || provs;
-    console.log('PROVIDERS = ', providers)
+    console.log('PROVIDERS.0 = ', provs)  
+    let providers = core.getInput('providers') ? core.getInput('providers').split('\n') : provs.split('\n');
+    console.log('PROVIDERS.1 = ', providers)
+    providers = providers.map(el => el.trim())
+    console.log('PROVIDERS.2 = ', providers)
     /**
      * 1 - parse providers
      * 2 - validate providers
