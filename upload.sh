@@ -1,5 +1,6 @@
 #!/bin/sh
 
-git tag -d develop
-git tag -a -m "Updateing dev version" develop
+npm run build
+git commit -a -m $1
+git tag -a -m $1 $2
 git push --follow-tags

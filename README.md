@@ -1,17 +1,95 @@
+# provider-status-action
 
+A GitHub Action for checking providers/vendors/services statuses before deploying
 
-## `who-to-greet`
+## Currently supported services
 
-**Required** The name of the person to greet. Default `"World"`.
+- AWS
+- Mongodb Atlas
+- Auth0
 
-## Outputs
+## Inputs
 
-## `time`
+```yaml
+  providers: |
+    service1.subservice
+    service2.subservice
+    service3
+```
+## Example
 
-The time we greeted you.
+You may provide as many services as you'd like, in this fashion:
 
-## Example usage
+```yaml
+      - name: Providers status
+        uses: gardarik/provider-status-action@v1.0.0
+        with:
+          providers: |
+            aws.appstream2-us-east-1
+            aws.apigateway-us-east-1
+            aws.route53privatedns-us-east-1
+            mongodb
+            auth0.1612668
+```
 
-uses: actions/hello-world-javascript-action@v1.1
-with:
-  who-to-greet: 'Mona the Octocat'
+## Result
+
+### Configuration
+```yaml
+...
+```
+
+### Output
+```
+...
+```
+## Services
+
+- ### AWS ###
+
+  URL for reference: https://status.aws.amazon.com/
+
+  **Syntax**
+  ```
+    aws.<subservice-name>
+  ```
+  where `subservice-name` is a part of RSS url(s) from https://status.aws.amazon.com/ 
+
+  https://status.aws.amazon.com/rss/(subservice-name).rss
+
+  **Example**
+
+   - https://status.aws.amazon.com/rss/apigateway-us-east-1.rss -> `aws.apigateway-us-east-1`
+   - https://status.aws.amazon.com/rss/elasticsearch-eu-west-1.rss -> `aws.elasticsearch-eu-west-1` 
+- ### MongoDB ###
+
+  URL for reference: http://status.mongodb.com/
+
+  **Syntax**
+  ```
+    mongodb.<subservice-id>
+  ```
+  where `subservice-id` is a numeric part of the link from http://status.mongodb.com/
+
+  http://status.mongodb.com/(subservice-id)
+
+  **Example**
+
+   - http://status.mongodb.com/1303731 -> `mongodb.1303731`
+  
+- ### Auth0 ###
+
+  URL for reference: http://uptime.auth0.com/
+
+  **Syntax**
+  ```
+    auth0.<subservice-id>
+  ```
+  where `subservice-id` is a numeric part of the link from http://uptime.auth0.com/
+
+  http://uptime.auth0.com/(subservice-id)
+
+  **Example**
+
+   - http://uptime.auth0.com/1612668 -> `auth0.1612668`
+  

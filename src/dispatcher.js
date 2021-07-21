@@ -1,4 +1,5 @@
 const SUPPORTED_PROVIDERS = ['aws', 'auth0', 'mongodb']
+const status = require('./const')
 
 module.exports.dispatchProviders = (providersList) => {
     const providers = providersList.toString().split(',') || []
@@ -8,7 +9,7 @@ module.exports.dispatchProviders = (providersList) => {
         if (SUPPORTED_PROVIDERS.includes(provGlobal)) {
             providersObj[provGlobal] = providersObj[provGlobal] || []
             providersObj[provGlobal].push(element)
-        }
+        } 
     });
     return providersObj
 }
@@ -19,10 +20,8 @@ module.exports.runProviderStatusCheck = async (provider, providerStatusIdentifie
         const calls = []
         providerStatusIdentifiers.forEach((pid) => calls.push(provLib.checkStatus(pid)))
         const res = Promise.all(calls)
-        // console.log('DISP all result = ', res)
         return res
     } catch(e) {
-        console.warn(`Could not load '${provider}' module`)
-        return Promise.resolve({provider, pid: providerStatusIdentifiers, result: `Could not load '${provider}' module`});
+        return Promise.resolve({provider, pid: providerStatusIdentifiers, service: '?', status: status.STATUS_WARNING, message: `Could not initialize "${provider}" module`});
     }
 }

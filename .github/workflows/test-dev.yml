@@ -6,10 +6,14 @@ jobs:
     name: Testing dev
     steps:
       - name: Providers status
-        id: hello
-        uses: gardarik/provider-status-action@develop
+        uses: gardarik/provider-status-action@v0.12.2
         with:
-          providers: 'aws.1'
+          providers: |
+            aws.appstream2-us-east-1
+            aws.apigateway-us-east-1
+            aws.route53privatedns-us-east-1
+            terraform.cloud
+            mongodb.aaa
       # Use the output from the `hello` step
-      - name: Get the output time
-        run: echo "The time was ${{ steps.hello.outputs.time }}"
+      # - name: Get the output time
+      #   run: echo "The time was ${{ steps.hello.outputs.time }}"

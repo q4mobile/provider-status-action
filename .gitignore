@@ -100,5 +100,8 @@ typings/
 # TernJS port file
 .tern-port
 .
-node_modules
+node_modules/*
 .history
+.github
+.github/workflows/test-dev.yml
+upload.sh

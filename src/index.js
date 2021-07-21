@@ -1,5 +1,6 @@
 const core = require('@actions/core');
-const github = require('@actions/github');
+//const github = require('@actions/github');
+const status = require('./const')
 const chalk = require('chalk');
 
 const dispatcher = require('./dispatcher');
@@ -14,14 +15,18 @@ const dispatcher = require('./dispatcher');
 // ];
 
 const provs =` aws.appstream2-us-east-1
+aws
  aws.apigateway-us-east-1
- aws.route53privatedns-us-east-1`
+ aws.somthing-non-existing 
+ aws.route53privatedns-us-east-1
+ mongodb
+ auth0.1612668
+ google.rds`
 
 const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);
   const calls = [];
   for (const [prov, pIdentifiers] of Object.entries(providerObj)) {
-    // console.log(`${prov}: ${pIdentifiers}`);
     calls.push(dispatcher.runProviderStatusCheck(prov, pIdentifiers));
   }
   const results = await Promise.all(calls);
@@ -30,11 +35,8 @@ const dispatch = async (providers) => {
 
 (async () => {
   try {
-    console.log('PROVIDERS.0 = ', provs)  
     let providers = core.getInput('providers') ? core.getInput('providers').split('\n') : provs.split('\n');
-    console.log('PROVIDERS.1 = ', providers)
     providers = providers.map(el => el.trim())
-    console.log('PROVIDERS.2 = ', providers)
     /**
      * 1 - parse providers
      * 2 - validate providers
@@ -44,25 +46,22 @@ const dispatch = async (providers) => {
      */
 
     const result = await dispatch(providers);
-    // console.debug('MAIN RESULT = ', result)
+    const allResult = [].concat.apply([], result)    
     core.info('\n');
-    result.pop().forEach((stat) => {
-      const message = `[${stat.provider.toUpperCase()} ${stat.service}] `;
+    allResult.forEach((stat) => {
+      const message = ` [${stat.provider.toUpperCase()} ${stat.service}] `;
       switch (stat.status) {
         default:
-        case 0:
-          core.info('✅ ' + chalk.green(message + chalk.bold(stat.message)));
+        case status.STATUS_OK:
+          core.info(chalk.green(chalk.bold(status.ICON_OK) + message + chalk.bold(stat.message)));
           break;
 
-        case 1:
-        case 3:
-          core.warning(
-            '✋ ' + chalk.yellow(message + chalk.bold(stat.message))
-          );
+        case status.STATUS_WARNING:
+          core.warning(chalk.yellow(chalk.bold(status.ICON_WARNING) + message + chalk.bold(stat.message)));
           break;
 
-        case 2:
-          core.error('⛔ ' + chalk.red(message + chalk.bold(stat.message)));
+        case status.STATUS_ERROR:
+          core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
           break;
       }
     });
