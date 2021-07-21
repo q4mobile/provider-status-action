@@ -21,6 +21,7 @@ aws
  aws.somthing-non-existing 
  aws.route53privatedns-us-east-1
  mongodb
+ aws.fail
  auth0.1612668
  google.rds`
 
@@ -38,13 +39,6 @@ const dispatch = async (providers) => {
   try {
     let providers = core.getInput('providers') ? core.getInput('providers').split('\n') : provs.split('\n');
     providers = providers.map(el => el.trim())
-    /**
-     * 1 - parse providers
-     * 2 - validate providers
-     * 3 - split providers to groups
-     * 4 - check group
-     * 5 - output result
-     */
 
     const result = await dispatch(providers);
     const allResult = [].concat.apply([], result)    
@@ -61,8 +55,8 @@ const dispatch = async (providers) => {
           break;
 
         case status.STATUS_ERROR:
-          // core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
-          core.setFailed(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
+          core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
+          throw new Error(message + stat.message)
           break;
       }
     });

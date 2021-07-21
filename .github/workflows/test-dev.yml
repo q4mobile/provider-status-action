@@ -7,13 +7,11 @@ jobs:
     name: Testing dev
     steps:
       - name: Providers status
-        uses: gardarik/provider-status-action@v0.12.7
+        uses: gardarik/provider-status-action@v0.12.8
         with:
           providers: |
             aws.appstream2-us-east-1
             aws.apigateway-us-east-1
             aws.route53privatedns-us-east-1
             auth0.1612668
-            mongodb.234234
             mongodb.4343523
-            aws.fail
