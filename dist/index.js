@@ -21892,23 +21892,7 @@ const chalk = __nccwpck_require__(8818);
 
 const dispatcher = __nccwpck_require__(8921);
 
-// const provs = [
-//   'aws.appstream2-us-east-1',
-//   'aws.apigateway-us-east-1',
-//   'aws.route53privatedns-us-east-1',
-//   // 'terraform.cloud',
-//   // 'auth0.q4-conference-dev',
-//   // 'mongodb.atlas'
-// ];
-
-const provs = ` aws.appstream2-us-east-1
-aws.shit
- aws.apigateway-us-east-1
- aws.somthing-non-existing 
- aws.route53privatedns-us-east-1
- mongodb
- auth0.1612668
- google.rds`;
+const provs = '';
 
 const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);
@@ -21927,76 +21911,73 @@ const dispatch = async (providers) => {
     let providers = core.getInput('providers')
       ? core.getInput('providers').split('\n')
       : provs.split('\n');
-    providers = providers.map((el) => el.trim());
+    providers = providers.map((el) => el.trim()).filter((el) => el.length);
 
-    const result = await dispatch(providers);
-    const res1 = result
-      .filter((x) => x.status === 'fulfilled')
-      .map((x) => x.value);
-    const res2 = [].concat.apply([], res1);
-    const allResult = res2.map((x) => x.value);
-    let SUCCESS = true;
-    let MSG = '';
-    allResult.forEach((stat) => {
-      const message = ` [${stat.provider.toUpperCase()} ${stat.service}] `;
-      switch (stat.status) {
-        default:
-        case status.STATUS_OK:
-          core.info(
-            chalk.green(
-              chalk.bold(status.ICON_OK) + message + chalk.bold(stat.message)
-            )
-          );
-          break;
+    if (providers.length) {
+      const result = await dispatch(providers);
+      const res1 = result
+        .filter((x) => x.status === 'fulfilled')
+        .map((x) => x.value);
+      const res2 = [].concat.apply([], res1);
+      const allResult = res2.map((x) => x.value);
+      let SUCCESS = true;
+      let MSG = '';
+      allResult.forEach((stat) => {
+        const message = ` [${stat.provider.toUpperCase()} ${stat.service}] `;
+        switch (stat.status) {
+          default:
+          case status.STATUS_OK:
+            core.info(
+              chalk.green(
+                chalk.bold(status.ICON_OK) + message + chalk.bold(stat.message)
+              )
+            );
+            break;
 
-        case status.STATUS_WARNING:
-          core.warning(
-            chalk.yellow(
-              chalk.bold(status.ICON_WARNING) +
-                message +
-                chalk.bold(stat.message)
-            )
-          );
-          if (FAIL_ON_WARNING && SUCCESS) {
-            SUCCESS = false;
-            MSG = message + stat.message;
-          }
-          break;
+          case status.STATUS_WARNING:
+            core.warning(
+              chalk.yellow(
+                chalk.bold(status.ICON_WARNING) +
+                  message +
+                  chalk.bold(stat.message)
+              )
+            );
+            if (FAIL_ON_WARNING && SUCCESS) {
+              SUCCESS = false;
+              MSG = message + stat.message;
+            }
+            break;
 
-        case status.STATUS_ERROR:
-          core.error(
-            chalk.red(
-              chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)
-            )
-          );
-          if (SUCCESS) {
-            SUCCESS = false;
-            MSG = message + stat.message;
-          }
-          break;
+          case status.STATUS_ERROR:
+            core.error(
+              chalk.red(
+                chalk.bold(status.ICON_ERROR) +
+                  message +
+                  chalk.bold(stat.message)
+              )
+            );
+            if (SUCCESS) {
+              SUCCESS = false;
+              MSG = message + stat.message;
+            }
+            break;
+        }
+      });
+      if (!SUCCESS) {
+        throw new Error(MSG);
       }
-    });
-    if (!SUCCESS) {
-      throw new Error(MSG);
+    } else {
+      core.warning(
+        chalk.yellow(
+          chalk.bold(status.ICON_WARNING) +
+            chalk.bold(`Invaid or empty "providers" parameter`)
+        )
+      );
     }
   } catch (error) {
     core.setFailed(error.message);
   }
 })();
-
-// https://status.hashicorp.com/#
-// https://status.heroku.com/
-//
-//
-
-// CloudFlare Status: https://www.cloudflarestatus.com/history.atom
-// Datadog Status: https://status.datadoghq.com/history.rss
-// DockerHub Status: https://status.docker.com/pages/533c6539221ae15e3f000031/rss
-// GitHub Status: https://www.githubstatus.com/history.rss
-// Hashicorp Status: https://status.hashicorp.com/history.rss
-// PyPi Status: https://status.python.org/
-// Sentry Status: https://status.sentry.io/history.
-////status.auth0.com/feed?domain={YOUR-TENANT}.auth0.com
 
 })();
 

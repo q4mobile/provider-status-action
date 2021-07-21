@@ -6,24 +6,6 @@ const chalk = require('chalk');
 
 const dispatcher = require('./dispatcher');
 
-// const provs = [
-//   'aws.appstream2-us-east-1',
-//   'aws.apigateway-us-east-1',
-//   'aws.route53privatedns-us-east-1',
-//   // 'terraform.cloud',
-//   // 'auth0.q4-conference-dev',
-//   // 'mongodb.atlas'
-// ];
-
-// const provs = ` aws.appstream2-us-east-1
-// aws.shit
-//  aws.apigateway-us-east-1
-//  aws.somthing-non-existing
-//  aws.route53privatedns-us-east-1
-//  mongodb
-//  auth0.1612668
-//  google.rds`;
-
 const provs = '';
 
 const dispatch = async (providers) => {
@@ -110,17 +92,3 @@ const dispatch = async (providers) => {
     core.setFailed(error.message);
   }
 })();
-
-// https://status.hashicorp.com/#
-// https://status.heroku.com/
-//
-//
-
-// CloudFlare Status: https://www.cloudflarestatus.com/history.atom
-// Datadog Status: https://status.datadoghq.com/history.rss
-// DockerHub Status: https://status.docker.com/pages/533c6539221ae15e3f000031/rss
-// GitHub Status: https://www.githubstatus.com/history.rss
-// Hashicorp Status: https://status.hashicorp.com/history.rss
-// PyPi Status: https://status.python.org/
-// Sentry Status: https://status.sentry.io/history.
-////status.auth0.com/feed?domain={YOUR-TENANT}.auth0.com
