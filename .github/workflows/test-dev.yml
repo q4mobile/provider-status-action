@@ -7,8 +7,9 @@ jobs:
     name: Testing dev
     steps:
       - name: Providers status
-        uses: gardarik/provider-status-action@v0.12.9
+        uses: gardarik/provider-status-action@v0.12.10
         with:
+          fail_on_warning: true
           providers: |
             aws.appstream2-us-east-1
             aws.apigateway-us-east-1

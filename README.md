@@ -10,12 +10,9 @@ A GitHub Action for checking providers/vendors/services statuses before deployin
 
 ## Inputs
 
-```yaml
-  providers: |
-    service1.subservice
-    service2.subservice
-    service3
-```
+- `fail_on_warning` - stops workflow run on "warning" status (default: false)
+
+- `provider` - multline list of services
 ## Example
 
 You may provide as many services as you'd like, in this fashion:

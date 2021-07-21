@@ -21902,7 +21902,7 @@ const dispatcher = __nccwpck_require__(8921);
 // ];
 
 const provs =` aws.appstream2-us-east-1
-aws.fail
+aws.shit
  aws.apigateway-us-east-1
  aws.somthing-non-existing 
  aws.route53privatedns-us-east-1
@@ -21922,6 +21922,8 @@ const dispatch = async (providers) => {
 
 (async () => {
   try {
+    const failwarn_input = core.getInput('fail_on_warning') || "false"
+    const FAIL_ON_WARNING = (failwarn_input.toLowerCase() == "true")
     let providers = core.getInput('providers') ? core.getInput('providers').split('\n') : provs.split('\n');
     providers = providers.map(el => el.trim())
 
@@ -21941,6 +21943,10 @@ const dispatch = async (providers) => {
 
         case status.STATUS_WARNING:
           core.warning(chalk.yellow(chalk.bold(status.ICON_WARNING) + message + chalk.bold(stat.message)));
+          if (FAIL_ON_WARNING) {
+            SUCCESS =false
+            MSG = message + stat.message
+          }
           break;
 
         case status.STATUS_ERROR:
