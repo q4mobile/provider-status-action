@@ -10,7 +10,7 @@ A GitHub Action for checking providers/vendors/services statuses before deployin
 
 ## Inputs
 
-- `fail_on_warning` - stops workflow run on "warning" status (default: false)
+- `fail_on_warning` - stops workflow run on "warning" status (default: `false`)
 
 - `provider` - multline list of services
 ## Example
