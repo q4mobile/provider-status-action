@@ -13,7 +13,6 @@ jobs:
           providers: |
             aws.appstream2-us-east-1
             aws.apigateway-us-east-1
-            aws.fail
             google.rds
             aws.something-here
             aws.route53privatedns-us-east-1
