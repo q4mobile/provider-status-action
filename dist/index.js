@@ -21884,8 +21884,9 @@ module.exports = require("util");
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const core = __nccwpck_require__(2186);
-//const github = require('@actions/github');
+process.env.FORCE_COLOR = '2';
+
+re = __nccwpck_require__(2186);
 const status = __nccwpck_require__(6818)
 const chalk = __nccwpck_require__(8818);
 
@@ -21946,8 +21947,8 @@ const dispatch = async (providers) => {
           break;
 
         case status.STATUS_ERROR:
-          core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
-          core.setFailed(message + stat.message);
+          //core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
+          core.setFailed(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
           break;
       }
     });

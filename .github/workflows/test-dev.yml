@@ -7,7 +7,7 @@ jobs:
     name: Testing dev
     steps:
       - name: Providers status
-        uses: gardarik/provider-status-action@v0.12.5
+        uses: gardarik/provider-status-action@v0.12.6
         with:
           providers: |
             aws.appstream2-us-east-1
