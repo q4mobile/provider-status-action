@@ -1,4 +1,4 @@
-const SUPPORTED_PROVIDERS = ['aws', 'auth0', 'mongodb']
+const SUPPORTED_PROVIDERS = ['aws', 'auth0', 'mongodb', 'datadog']
 const status = require('./const')
 
 module.exports.dispatchProviders = (providersList) => {
