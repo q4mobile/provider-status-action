@@ -19,7 +19,7 @@ module.exports.runProviderStatusCheck = async (provider, providerStatusIdentifie
         const provLib = require(`./providers/${provider}.lib.js`)
         const calls = []
         providerStatusIdentifiers.forEach((pid) => calls.push(provLib.checkStatus(pid)))
-        const res = Promise.allSettled(calls)
+        const res = Promise.all(calls)
         return res
     } catch(e) {
         return Promise.resolve({provider, pid: providerStatusIdentifiers, service: '?', status: status.STATUS_WARNING, message: `Could not initialize "${provider}" module`});
