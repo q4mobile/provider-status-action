@@ -21475,7 +21475,7 @@ module.exports.runProviderStatusCheck = async (provider, providerStatusIdentifie
         const provLib = __ncc_wildcard$0(provider)
         const calls = []
         providerStatusIdentifiers.forEach((pid) => calls.push(provLib.checkStatus(pid)))
-        const res = Promise.all(calls)
+        const res = Promise.allSettled(calls)
         return res
     } catch(e) {
         return Promise.resolve({provider, pid: providerStatusIdentifiers, service: '?', status: status.STATUS_WARNING, message: `Could not initialize "${provider}" module`});
@@ -21902,12 +21902,11 @@ const dispatcher = __nccwpck_require__(8921);
 // ];
 
 const provs =` aws.appstream2-us-east-1
-aws
+aws.fail
  aws.apigateway-us-east-1
  aws.somthing-non-existing 
  aws.route53privatedns-us-east-1
  mongodb
- aws.fail
  auth0.1612668
  google.rds`
 
@@ -21917,7 +21916,7 @@ const dispatch = async (providers) => {
   for (const [prov, pIdentifiers] of Object.entries(providerObj)) {
     calls.push(dispatcher.runProviderStatusCheck(prov, pIdentifiers));
   }
-  const results = await Promise.all(calls);
+  const results = await Promise.allSettled(calls);
   return results;
 };
 
@@ -21927,7 +21926,11 @@ const dispatch = async (providers) => {
     providers = providers.map(el => el.trim())
 
     const result = await dispatch(providers);
-    const allResult = [].concat.apply([], result)    
+    const res1 = result.filter(x => x.status === "fulfilled").map(x => x.value)
+    const res2 = [].concat.apply([], res1)        
+    const allResult = res2.map(x => x.value)
+    let SUCCESS = true
+    let MSG = ""
     allResult.forEach((stat) => {
       const message = ` [${stat.provider.toUpperCase()} ${stat.service}] `;
       switch (stat.status) {
@@ -21942,10 +21945,14 @@ const dispatch = async (providers) => {
 
         case status.STATUS_ERROR:
           core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
-          throw new Error(message + stat.message)
+          SUCCESS =false
+          MSG = message + stat.message
           break;
       }
     });
+    if (!SUCCESS) {
+      throw new Error(MSG)
+    }
   } catch (error) {
     core.setFailed(error.message);
   }
