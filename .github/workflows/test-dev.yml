@@ -8,7 +8,7 @@ jobs:
     name: "Provider Status"
     steps:
       - name: Check statuses
-        uses: gardarik/provider-status-action@develop
+        uses: gardarik/provider-status-action@1.0.2d
         with:
           providers: |
             aws.cloudfront
