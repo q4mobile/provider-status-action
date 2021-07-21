@@ -2,6 +2,23 @@ on:
   workflow_dispatch:
 
 jobs:
+  provstatus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: "Provider Status"
+    steps:
+      - name: Check statuses
+        uses: gardarik/provider-status-action@v1.0.0
+        with:
+          providers: |
+            aws.cloudfront
+            aws.apigateway-us-east-1
+            aws.lambda-us-east-1
+            aws.route53privatedns-us-east-1
+            mongodb
+            auth0.749624
+            auth0.1612668
+            
   test-dev:
     runs-on: ubuntu-latest
     name: Testing dev

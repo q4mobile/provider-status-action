@@ -14,7 +14,7 @@ const dispatch = async (providers) => {
   for (const [prov, pIdentifiers] of Object.entries(providerObj)) {
     calls.push(dispatcher.runProviderStatusCheck(prov, pIdentifiers));
   }
-  const results = await Promise.allSettled(calls);
+  const results = await Promise.all(calls);
   return results;
 };
 
