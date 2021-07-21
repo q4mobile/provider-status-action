@@ -47,7 +47,6 @@ const dispatch = async (providers) => {
 
     const result = await dispatch(providers);
     const allResult = [].concat.apply([], result)    
-    core.info('\n');
     allResult.forEach((stat) => {
       const message = ` [${stat.provider.toUpperCase()} ${stat.service}] `;
       switch (stat.status) {
@@ -62,14 +61,10 @@ const dispatch = async (providers) => {
 
         case status.STATUS_ERROR:
           core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
+          core.setFailed(message + stat.message);
           break;
       }
     });
-    // const time = (new Date()).toTimeString();
-    // core.setOutput("time", time);
-    // Get the JSON webhook payload for the event that triggered the workflow
-    // const payload = JSON.stringify(github.context.payload, undefined, 2)
-    // console.log(`The event payload: ${payload}`);
   } catch (error) {
     core.setFailed(error.message);
   }
