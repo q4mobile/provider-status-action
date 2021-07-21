@@ -36,12 +36,23 @@ You may provide as many services as you'd like, in this fashion:
 
 ### Configuration
 ```yaml
-...
+        with:
+          providers: |
+            aws.appstream2-us-east-1
+            aws.apigateway-us-east-1
+            aws.route53privatedns-us-east-1
+            auth0.1612668
+            mongodb
+            mongodb.4343523
 ```
-
 ### Output
 ```
-...
+ ➔ [AWS AppStream 2.0 (N. Virginia)] Service is operating normally
+ ➔ [AWS API Gateway (N. Virginia)] Service is operating normally
+ ➔ [AWS Route 53 Private DNS (N. Virginia)] OK: No status events
+ ➔ [AUTH0 Authentication API (PROD)] Service is operating normally
+ ➔ [MONGODB cloud.mongodb.com] Service is operating normally
+ ➔ [MONGODB support.mongodb.com] Service is operating normally
 ```
 ## Services
 

@@ -21560,7 +21560,7 @@ const getHttp = async (url) => {
 
 const httpm = __nccwpck_require__(9925);
 const cheerio = __nccwpck_require__(4612);
-const status = __nccwpck_require__(6818)
+const status = __nccwpck_require__(6818);
 
 module.exports.checkStatus = async (providerStatusIdentifier) => {
   const [prov, pid] = providerStatusIdentifier.split('.');
@@ -21572,9 +21572,16 @@ module.exports.checkStatus = async (providerStatusIdentifier) => {
 
   try {
     if (!pid) {
-      statusResponse.service = '???'
-      throw new Error("You have to provide `aws` subservice name. See README.")
+      statusResponse.service = '???';
+      throw new Error('You have to provide `aws` subservice name. See README.');
     }
+
+    if (pid === 'fail') {
+      statusResponse.message = 'Testing fail';
+      statusResponse.status = status.STATUS_ERROR;
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
+    }
+
     const response = await getHttp(
       `https://status.aws.amazon.com/rss/${pid}.rss`
     );
@@ -21613,8 +21620,8 @@ module.exports.checkStatus = async (providerStatusIdentifier) => {
     }
     return Promise.resolve({ provider: prov, pid, ...statusResponse });
   } catch (e) {
-      statusResponse.message = e.message
-      statusResponse.status = status.STATUS_WARNING
+    statusResponse.message = e.message;
+    statusResponse.status = status.STATUS_WARNING;
     return Promise.resolve({ provider: prov, pid, ...statusResponse });
   }
 };

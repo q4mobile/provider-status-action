@@ -1,4 +1,5 @@
-on: [push]
+on:
+  workflow_dispatch:
 
 jobs:
   test-dev:
@@ -6,14 +7,13 @@ jobs:
     name: Testing dev
     steps:
       - name: Providers status
-        uses: gardarik/provider-status-action@v0.12.2
+        uses: gardarik/provider-status-action@v0.12.3
         with:
           providers: |
             aws.appstream2-us-east-1
             aws.apigateway-us-east-1
             aws.route53privatedns-us-east-1
-            terraform.cloud
-            mongodb.aaa
-      # Use the output from the `hello` step
-      # - name: Get the output time
-      #   run: echo "The time was ${{ steps.hello.outputs.time }}"
+            auth0.1612668
+            mongodb.234234
+            mongodb.4343523
+            aws.fail
