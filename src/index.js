@@ -6,7 +6,13 @@ const chalk = require('chalk');
 
 const dispatcher = require('./dispatcher');
 
-const provs = '';
+const provs = `aws.cloudfront
+aws.apigateway-us-east-1
+aws.lambda-us-east-1
+aws.route53privatedns-us-east-1
+mongodb
+auth0.749624
+auth0.1612668`;
 
 const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);
@@ -26,14 +32,9 @@ const dispatch = async (providers) => {
       ? core.getInput('providers').split('\n')
       : provs.split('\n');
     providers = providers.map((el) => el.trim()).filter((el) => el.length);
-
     if (providers.length) {
       const result = await dispatch(providers);
-      const res1 = result
-        .filter((x) => x.status === 'fulfilled')
-        .map((x) => x.value);
-      const res2 = [].concat.apply([], res1);
-      const allResult = res2.map((x) => x.value);
+      const allResult = [].concat.apply([], result);
       let SUCCESS = true;
       let MSG = '';
       allResult.forEach((stat) => {

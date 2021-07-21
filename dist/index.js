@@ -21475,7 +21475,7 @@ module.exports.runProviderStatusCheck = async (provider, providerStatusIdentifie
         const provLib = __ncc_wildcard$0(provider)
         const calls = []
         providerStatusIdentifiers.forEach((pid) => calls.push(provLib.checkStatus(pid)))
-        const res = Promise.allSettled(calls)
+        const res = Promise.all(calls)
         return res
     } catch(e) {
         return Promise.resolve({provider, pid: providerStatusIdentifiers, service: '?', status: status.STATUS_WARNING, message: `Could not initialize "${provider}" module`});
@@ -21892,7 +21892,13 @@ const chalk = __nccwpck_require__(8818);
 
 const dispatcher = __nccwpck_require__(8921);
 
-const provs = '';
+const provs = `aws.cloudfront
+aws.apigateway-us-east-1
+aws.lambda-us-east-1
+aws.route53privatedns-us-east-1
+mongodb
+auth0.749624
+auth0.1612668`;
 
 const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);
@@ -21900,7 +21906,7 @@ const dispatch = async (providers) => {
   for (const [prov, pIdentifiers] of Object.entries(providerObj)) {
     calls.push(dispatcher.runProviderStatusCheck(prov, pIdentifiers));
   }
-  const results = await Promise.allSettled(calls);
+  const results = await Promise.all(calls);
   return results;
 };
 
@@ -21912,14 +21918,9 @@ const dispatch = async (providers) => {
       ? core.getInput('providers').split('\n')
       : provs.split('\n');
     providers = providers.map((el) => el.trim()).filter((el) => el.length);
-
     if (providers.length) {
       const result = await dispatch(providers);
-      const res1 = result
-        .filter((x) => x.status === 'fulfilled')
-        .map((x) => x.value);
-      const res2 = [].concat.apply([], res1);
-      const allResult = res2.map((x) => x.value);
+      const allResult = [].concat.apply([], result);
       let SUCCESS = true;
       let MSG = '';
       allResult.forEach((stat) => {
