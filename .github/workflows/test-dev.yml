@@ -12,6 +12,8 @@ jobs:
           providers: |
             aws.appstream2-us-east-1
             aws.apigateway-us-east-1
+            aws.fail
             aws.route53privatedns-us-east-1
             auth0.1612668
             mongodb.4343523
+
