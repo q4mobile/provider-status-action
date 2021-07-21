@@ -43,14 +43,7 @@ You may provide as many services as you'd like, in this fashion:
             mongodb.4343523
 ```
 ### Output
-```
- ➔ [AWS AppStream 2.0 (N. Virginia)] Service is operating normally
- ➔ [AWS API Gateway (N. Virginia)] Service is operating normally
- ➔ [AWS Route 53 Private DNS (N. Virginia)] OK: No status events
- ➔ [AUTH0 Authentication API (PROD)] Service is operating normally
- ➔ [MONGODB cloud.mongodb.com] Service is operating normally
- ➔ [MONGODB support.mongodb.com] Service is operating normally
-```
+![image](https://user-images.githubusercontent.com/45370035/126528768-c11c0e15-cf26-4f62-9516-07aa319018c0.png)
 ## Services
 
 - ### AWS ###
