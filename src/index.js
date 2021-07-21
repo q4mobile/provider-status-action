@@ -1,7 +1,7 @@
 process.env.FORCE_COLOR = '2';
 
 const core = require('@actions/core');
-const status = require('./const')
+const status = require('./const');
 const chalk = require('chalk');
 
 const dispatcher = require('./dispatcher');
@@ -15,14 +15,14 @@ const dispatcher = require('./dispatcher');
 //   // 'mongodb.atlas'
 // ];
 
-const provs =` aws.appstream2-us-east-1
+const provs = ` aws.appstream2-us-east-1
 aws.shit
  aws.apigateway-us-east-1
  aws.somthing-non-existing 
  aws.route53privatedns-us-east-1
  mongodb
  auth0.1612668
- google.rds`
+ google.rds`;
 
 const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);
@@ -36,42 +36,62 @@ const dispatch = async (providers) => {
 
 (async () => {
   try {
-    const failwarn_input = core.getInput('fail_on_warning') || "false"
-    const FAIL_ON_WARNING = (failwarn_input.toLowerCase() == "true")
-    let providers = core.getInput('providers') ? core.getInput('providers').split('\n') : provs.split('\n');
-    providers = providers.map(el => el.trim())
+    const failwarn_input = core.getInput('fail_on_warning') || 'false';
+    const FAIL_ON_WARNING = failwarn_input.toLowerCase() == 'true';
+    let providers = core.getInput('providers')
+      ? core.getInput('providers').split('\n')
+      : provs.split('\n');
+    providers = providers.map((el) => el.trim());
 
     const result = await dispatch(providers);
-    const res1 = result.filter(x => x.status === "fulfilled").map(x => x.value)
-    const res2 = [].concat.apply([], res1)        
-    const allResult = res2.map(x => x.value)
-    let SUCCESS = true
-    let MSG = ""
+    const res1 = result
+      .filter((x) => x.status === 'fulfilled')
+      .map((x) => x.value);
+    const res2 = [].concat.apply([], res1);
+    const allResult = res2.map((x) => x.value);
+    let SUCCESS = true;
+    let MSG = '';
     allResult.forEach((stat) => {
       const message = ` [${stat.provider.toUpperCase()} ${stat.service}] `;
       switch (stat.status) {
         default:
         case status.STATUS_OK:
-          core.info(chalk.green(chalk.bold(status.ICON_OK) + message + chalk.bold(stat.message)));
+          core.info(
+            chalk.green(
+              chalk.bold(status.ICON_OK) + message + chalk.bold(stat.message)
+            )
+          );
           break;
 
         case status.STATUS_WARNING:
-          core.warning(chalk.yellow(chalk.bold(status.ICON_WARNING) + message + chalk.bold(stat.message)));
-          if (FAIL_ON_WARNING) {
-            SUCCESS =false
-            MSG = message + stat.message
+          core.warning(
+            chalk.yellow(
+              chalk.bold(status.ICON_WARNING) +
+                message +
+                chalk.bold(stat.message)
+            )
+          );
+          if (FAIL_ON_WARNING && SUCCESS) {
+            SUCCESS = false;
+            MSG = message + stat.message;
           }
           break;
 
         case status.STATUS_ERROR:
-          core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
-          SUCCESS =false
-          MSG = message + stat.message
+          core.error(
+            chalk.red(
+              chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)
+            )
+          );
+          if (SUCCESS) {
+            SUCCESS = false;
+            MSG = message + stat.message;
+          }
           break;
       }
     });
     if (!SUCCESS) {
-      throw new Error(MSG)
+      throw new Error(MSG);
     }
   } catch (error) {
     core.setFailed(error.message);
