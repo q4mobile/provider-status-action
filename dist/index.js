@@ -21475,7 +21475,7 @@ module.exports.runProviderStatusCheck = async (provider, providerStatusIdentifie
         const provLib = __ncc_wildcard$0(provider)
         const calls = []
         providerStatusIdentifiers.forEach((pid) => calls.push(provLib.checkStatus(pid)))
-        const res = Promise.allSettled(calls)
+        const res = Promise.all(calls)
         return res
     } catch(e) {
         return Promise.resolve({provider, pid: providerStatusIdentifiers, service: '?', status: status.STATUS_WARNING, message: `Could not initialize "${provider}" module`});
@@ -21900,7 +21900,7 @@ const dispatch = async (providers) => {
   for (const [prov, pIdentifiers] of Object.entries(providerObj)) {
     calls.push(dispatcher.runProviderStatusCheck(prov, pIdentifiers));
   }
-  const results = await Promise.allSettled(calls);
+  const results = await Promise.all(calls);
   return results;
 };
 
