@@ -1,6 +1,6 @@
 process.env.FORCE_COLOR = '2';
 
-re = require('@actions/core');
+const core = require('@actions/core');
 const status = require('./const')
 const chalk = require('chalk');
 
@@ -61,7 +61,7 @@ const dispatch = async (providers) => {
           break;
 
         case status.STATUS_ERROR:
-          //core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
+          // core.error(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
           core.setFailed(chalk.red(chalk.bold(status.ICON_ERROR) + message + chalk.bold(stat.message)));
           break;
       }
