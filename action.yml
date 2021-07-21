@@ -5,7 +5,14 @@ inputs:
   providers:
     description: 'List of providers/vendors'
     required: true
-    default: 'aws.lambda'
+    default: ''
+  fail_on_warning: 
+    description: 'Stop workflow run on "warning" status'
+    required: false
+    default: 'false'
 runs:
   using: 'node12'
-  main: 'index.js'
+  main: 'dist/index.js'
+branding:
+  color: 'orange'
+  icon: 'globe'
