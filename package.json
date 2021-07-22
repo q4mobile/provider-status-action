@@ -1,6 +1,6 @@
 {
   "name": "provider-status-action",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Github Action addon for checking provider status",
   "main": "dist/index.js",
   "scripts": {

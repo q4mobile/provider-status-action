@@ -1,4 +1,3 @@
-const SUPPORTED_PROVIDERS = ['aws', 'auth0', 'mongodb']
 const status = require('./const')
 
 module.exports.dispatchProviders = (providersList) => {
@@ -6,7 +5,7 @@ module.exports.dispatchProviders = (providersList) => {
     const providersObj = {}
     providers.forEach(element => {
         const [provGlobal] = element.split('.') || element
-        if (SUPPORTED_PROVIDERS.includes(provGlobal)) {
+        if (status.SUPPORTED_PROVIDERS.includes(provGlobal)) {
             providersObj[provGlobal] = providersObj[provGlobal] || []
             providersObj[provGlobal].push(element)
         } 

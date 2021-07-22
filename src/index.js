@@ -6,13 +6,7 @@ const chalk = require('chalk');
 
 const dispatcher = require('./dispatcher');
 
-const provs = `aws.cloudfront
-aws.apigateway-us-east-1
-aws.lambda-us-east-1
-aws.route53privatedns-us-east-1
-mongodb
-auth0.749624
-auth0.1612668`;
+const provs = ``;
 
 const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);
