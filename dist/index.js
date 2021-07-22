@@ -21731,7 +21731,7 @@ module.exports.checkStatus = async (providerStatusIdentifier) => {
   const serviceName = pid
     ? HerokuPidMap[pid]
     : Object.values(HerokuPidMap).join('/');
-  console.debug('SERV NAME[%s] = ', pid, serviceName);
+
   const statusResponse = {
     service: serviceName,
     status: status.STATUS_WARNING,
