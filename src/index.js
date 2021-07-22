@@ -8,6 +8,8 @@ const dispatcher = require('./dispatcher');
 
 const provs = `aws.cloudfront
 aws.apigateway-us-east-1
+heroku
+heroku.apps
 aws.lambda-us-east-1
 datadog
 aws.route53privatedns-us-east-1

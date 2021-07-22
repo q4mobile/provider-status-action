@@ -1,5 +1,4 @@
 const httpm = require('@actions/http-client');
-const cheerio = require('cheerio');
 const status = require('../const');
 
 module.exports.checkStatus = async (providerStatusIdentifier) => {
