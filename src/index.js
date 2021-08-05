@@ -1,10 +1,10 @@
-process.env.FORCE_COLOR = '2';
+process.env.FORCE_COLOR = "2";
 
-const core = require('@actions/core');
-const status = require('./const');
-const chalk = require('chalk');
+const core = require("@actions/core");
+const status = require("./const");
+const chalk = require("chalk");
 
-const dispatcher = require('./dispatcher');
+const dispatcher = require("./dispatcher");
 
 const provs = ``;
 
@@ -20,17 +20,17 @@ const dispatch = async (providers) => {
 
 (async () => {
   try {
-    const failwarn_input = core.getInput('fail_on_warning') || 'false';
-    const FAIL_ON_WARNING = failwarn_input.toLowerCase() == 'true';
-    let providers = core.getInput('providers')
-      ? core.getInput('providers').split('\n')
-      : provs.split('\n');
+    const failwarn_input = core.getInput("fail_on_warning") || "false";
+    const FAIL_ON_WARNING = failwarn_input.toLowerCase() == "true";
+    let providers = core.getInput("providers")
+      ? core.getInput("providers").split("\n")
+      : provs.split("\n");
     providers = providers.map((el) => el.trim()).filter((el) => el.length);
     if (providers.length) {
       const result = await dispatch(providers);
       const allResult = [].concat.apply([], result);
       let SUCCESS = true;
-      let MSG = '';
+      let MSG = "";
       allResult.forEach((stat) => {
         const message = ` [${stat.provider.toUpperCase()} ${stat.service}] `;
         switch (stat.status) {
@@ -87,3 +87,7 @@ const dispatch = async (providers) => {
     core.setFailed(error.message);
   }
 })();
+
+// DockerHub Status: https://status.docker.com/pages/533c6539221ae15e3f000031/rss
+// GitHub Status: https://www.githubstatus.com/history.rss
+// PyPi Status: https://status.python.org/

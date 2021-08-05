@@ -21436,14 +21436,29 @@ exports.debug = debug; // for test
 /***/ ((module) => {
 
 module.exports = Object.freeze({
-    STATUS_OK: 0,
-    STATUS_WARNING: 1,
-    STATUS_ERROR: 2,
-    ICON_OK: '➔',
-    ICON_WARNING: '!',
-    ICON_ERROR: '✘',
-    SUPPORTED_PROVIDERS: ['aws', 'auth0', 'mongodb', 'datadog', 'heroku']
+  STATUS_OK: 0,
+  STATUS_WARNING: 1,
+  STATUS_ERROR: 2,
+  ICON_OK: "➔",
+  ICON_WARNING: "!",
+  ICON_ERROR: "✘",
+  SUPPORTED_PROVIDERS: [
+    "aws",
+    "auth0",
+    "mongodb",
+    "datadog",
+    "heroku",
+    "twilio",
+    "sendgrid",
+    "pendo",
+    "atlassian",
+    "newrelic",
+    "cloudflare",
+    "sentry",
+    "hashicorp"
+  ],
 });
+
 
 /***/ }),
 
@@ -21451,108 +21466,256 @@ module.exports = Object.freeze({
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 function __ncc_wildcard$0 (arg) {
-  if (arg === "auth0") return __nccwpck_require__(6086);
+  if (arg === "_base") return __nccwpck_require__(3834);
+  else if (arg === "_statuspage") return __nccwpck_require__(7803);
+  else if (arg === "atlassian") return __nccwpck_require__(186);
+  else if (arg === "auth0") return __nccwpck_require__(6086);
   else if (arg === "aws") return __nccwpck_require__(7662);
+  else if (arg === "cloudflare") return __nccwpck_require__(2309);
   else if (arg === "datadog") return __nccwpck_require__(3914);
+  else if (arg === "hashicorp") return __nccwpck_require__(4274);
   else if (arg === "heroku") return __nccwpck_require__(2701);
   else if (arg === "mongodb") return __nccwpck_require__(5384);
+  else if (arg === "newrelic") return __nccwpck_require__(9983);
+  else if (arg === "pendo") return __nccwpck_require__(7599);
+  else if (arg === "sendgrid") return __nccwpck_require__(3242);
+  else if (arg === "sentry") return __nccwpck_require__(7979);
+  else if (arg === "twilio") return __nccwpck_require__(7437);
 }
-const status = __nccwpck_require__(6818)
+const status = __nccwpck_require__(6818);
 
 module.exports.dispatchProviders = (providersList) => {
-    const providers = providersList.toString().split(',') || []
-    const providersObj = {}
-    providers.forEach(element => {
-        const [provGlobal] = element.split('.') || element
-        if (status.SUPPORTED_PROVIDERS.includes(provGlobal)) {
-            providersObj[provGlobal] = providersObj[provGlobal] || []
-            providersObj[provGlobal].push(element)
-        } 
+  const providers = providersList.toString().split(",") || [];
+  const providersObj = {};
+  providers.forEach((element) => {
+    const [provGlobal] = element.split(".") || element;
+    if (status.SUPPORTED_PROVIDERS.includes(provGlobal)) {
+      providersObj[provGlobal] = providersObj[provGlobal] || [];
+      providersObj[provGlobal].push(element);
+    }
+  });
+  return providersObj;
+};
+
+module.exports.runProviderStatusCheck = async (
+  provider,
+  providerStatusIdentifiers
+) => {
+  try {
+    const provLib = __ncc_wildcard$0(provider);
+    let provObj = null;
+    if (typeof provLib === "function") {
+      provObj = new provLib();
+    } else {
+      provObj = provLib;
+    }
+    const calls = [];
+    providerStatusIdentifiers.forEach((pid) =>
+      calls.push(provObj.checkStatus(pid))
+    );
+    const res = Promise.all(calls);
+    return res;
+  } catch (e) {
+    console.debug(e);
+    return Promise.resolve({
+      provider,
+      pid: providerStatusIdentifiers,
+      service: "?",
+      status: status.STATUS_WARNING,
+      message: `Could not initialize "${provider}" module`,
     });
-    return providersObj
+  }
+};
+
+
+/***/ }),
+
+/***/ 3834:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const httpm = __nccwpck_require__(9925);
+const status = __nccwpck_require__(6818);
+
+class StatusBase {
+  constructor(url) {
+    this.url = url;
+  }
+
+  checkStatus = async (providerStatusIdentifier) => {};
+
+  getHttp = async (url) => {
+    const http = new httpm.HttpClient(url);
+    const response = await http.get(url);
+    if (response.message.statusCode != 200) {
+      throw new Error(
+        `${response.message.statusCode} ${response.message.statusMessage}`
+      );
+    }
+    return response.readBody();
+  };
 }
 
-module.exports.runProviderStatusCheck = async (provider, providerStatusIdentifiers) => {
+module.exports = StatusBase;
+
+
+/***/ }),
+
+/***/ 7803:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const httpm = __nccwpck_require__(9925);
+const status = __nccwpck_require__(6818);
+
+class StatusPage {
+  constructor(url) {
+    this.url = url;
+  }
+
+  checkStatus = async (providerStatusIdentifier) => {
+    const [prov] = providerStatusIdentifier.split(".");
+    const pid = "All Systems";
+    const statusResponse = {
+      service: pid,
+      status: status.STATUS_WARNING,
+      message: "UNKNOWN: ",
+    };
+
     try {
-        const provLib = __ncc_wildcard$0(provider)
-        const calls = []
-        providerStatusIdentifiers.forEach((pid) => calls.push(provLib.checkStatus(pid)))
-        const res = Promise.all(calls)
-        return res
-    } catch(e) {
-        return Promise.resolve({provider, pid: providerStatusIdentifiers, service: '?', status: status.STATUS_WARNING, message: `Could not initialize "${provider}" module`});
+      const httpResponse = await this.getHttp(this.url);
+      const response = JSON.parse(httpResponse);
+
+      if (response && response.status) {
+        const icon = response.status.indicator || null;
+        const date = response.page.updated_at;
+        const title = response.status.description;
+
+        switch (icon) {
+          case "none":
+            statusResponse.status = status.STATUS_OK;
+            statusResponse.message = title;
+            break;
+
+          case "critical":
+          case "major":
+            statusResponse.status = status.STATUS_ERROR;
+            statusResponse.message = `[${date}] ${title}`;
+            break;
+
+          default:
+          case "minor":
+          case "maintenance":
+            statusResponse.status = status.STATUS_WARNING;
+            statusResponse.message = `[${date}] ${title}`;
+            break;
+        }
+      } else {
+        statusResponse.status = status.STATUS_WARNING;
+        statusResponse.message = `Couldn't retrive status`;
+      }
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
+    } catch (e) {
+      statusResponse.message = e.message;
+      statusResponse.status = status.STATUS_WARNING;
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
     }
+  };
+
+  getHttp = async (url) => {
+    const http = new httpm.HttpClient(url);
+    const response = await http.get(url);
+    if (response.message.statusCode != 200) {
+      throw new Error(
+        `${response.message.statusCode} ${response.message.statusMessage}`
+      );
+    }
+    return response.readBody();
+  };
 }
+
+module.exports = StatusPage;
+
+
+/***/ }),
+
+/***/ 186:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class AtlassianStatus extends StatusPage {
+  constructor() {
+    super("https://status.atlassian.com/api/v2/status.json");
+  }
+}
+
+module.exports = AtlassianStatus;
+
 
 /***/ }),
 
 /***/ 6086:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const httpm = __nccwpck_require__(9925);
 const cheerio = __nccwpck_require__(4612);
+const StatusBase = __nccwpck_require__(3834);
 const status = __nccwpck_require__(6818);
+class Auth0Status extends StatusBase {
+  constructor() {
+    super(`http://uptime.auth0.com/`);
+  }
 
-module.exports.checkStatus = async (providerStatusIdentifier) => {
-  const [prov, passedPid] = providerStatusIdentifier.split('.');
-  const pid = passedPid || '749624'; // auth0 login
-  const statusResponse = {
-    service: pid,
-    status: status.STATUS_WARNING,
-    message: 'UNKNOWN: ',
-  };
+  checkStatus = async (providerStatusIdentifier) => {
+    const [prov, passedPid] = providerStatusIdentifier.split(".");
+    const pid = passedPid || "749624"; // auth0 login
+    const statusResponse = {
+      service: pid,
+      status: status.STATUS_WARNING,
+      message: "UNKNOWN: ",
+    };
 
-  try {
-    const response = await getHttp(`http://uptime.auth0.com/${pid}`);
-    const $ = cheerio.load(response);
-    const lastChecked = $('#lastChecked') || null;
-    const pidServiceName = $('h1.largeTitle').text() || pid;
-    statusResponse.service = pidServiceName;
-    if (lastChecked) {
-      const icon = $('#statusIcon', lastChecked).attr('class');
-      const title = $(icon).attr('title') || 'Status unknown';
-      const date = $('p', lastChecked).text() || 'Now';
+    try {
+      const response = await this.getHttp(`${this.url}${pid}`);
+      const $ = cheerio.load(response);
+      const lastChecked = $("#lastChecked") || null;
+      const pidServiceName = $("h1.largeTitle").text() || pid;
+      statusResponse.service = pidServiceName;
+      if (lastChecked) {
+        const icon = $("#statusIcon", lastChecked).attr("class");
+        const title = $(icon).attr("title") || "Status unknown";
+        const date = $("p", lastChecked).text() || "Now";
 
-      switch (icon) {
-        case 'up':
-          statusResponse.status = status.STATUS_OK;
-          statusResponse.message = `Service is operating normally`;
-          break;
+        switch (icon) {
+          case "up":
+            statusResponse.status = status.STATUS_OK;
+            statusResponse.message = `Service is operating normally`;
+            break;
 
-        case 'down':
-          statusResponse.status = status.STATUS_ERROR;
-          statusResponse.message = `[${date}] Service outage`;
-          break;
+          case "down":
+            statusResponse.status = status.STATUS_ERROR;
+            statusResponse.message = `[${date}] Service outage`;
+            break;
 
-        default:
-        case 'paused':
-        case 'unknown':
-          statusResponse.status = status.STATUS_WARNING;
-          statusResponse.message = `[${date}] ${title}`;
-          break;
+          default:
+          case "paused":
+          case "unknown":
+            statusResponse.status = status.STATUS_WARNING;
+            statusResponse.message = `[${date}] ${title}`;
+            break;
+        }
+      } else {
+        statusResponse.status = status.STATUS_WARNING;
+        statusResponse.message = `Couldn't retrive status`;
       }
-    } else {
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
+    } catch (e) {
+      statusResponse.message = e.message;
       statusResponse.status = status.STATUS_WARNING;
-      statusResponse.message = `Couldn't retrive status`;
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
     }
-    return Promise.resolve({ provider: prov, pid, ...statusResponse });
-  } catch (e) {
-    statusResponse.message = e.message;
-    statusResponse.status = status.STATUS_WARNING;
-    return Promise.resolve({ provider: prov, pid, ...statusResponse });
-  }
-};
+  };
+}
 
-const getHttp = async (url) => {
-  const http = new httpm.HttpClient(url);
-  const response = await http.get(url);
-  if (response.message.statusCode != 200) {
-    throw new Error(
-      `${response.message.statusCode} ${response.message.statusMessage}`
-    );
-  }
-  return response.readBody();
-};
+module.exports = Auth0Status;
 
 
 /***/ }),
@@ -21560,84 +21723,235 @@ const getHttp = async (url) => {
 /***/ 7662:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const httpm = __nccwpck_require__(9925);
 const cheerio = __nccwpck_require__(4612);
+const StatusBase = __nccwpck_require__(3834);
 const status = __nccwpck_require__(6818);
+class AWSStatus extends StatusBase {
+  constructor() {
+    super(`https://status.aws.amazon.com/rss/`);
+  }
 
-module.exports.checkStatus = async (providerStatusIdentifier) => {
-  const [prov, pid] = providerStatusIdentifier.split('.');
-  const statusResponse = {
-    service: pid,
-    status: status.STATUS_WARNING,
-    message: 'UNKNOWN: ',
-  };
+  checkStatus = async (providerStatusIdentifier) => {
+    const [prov, pid] = providerStatusIdentifier.split(".");
+    const statusResponse = {
+      service: pid,
+      status: status.STATUS_WARNING,
+      message: "UNKNOWN: ",
+    };
 
-  try {
-    if (!pid) {
-      statusResponse.service = '???';
-      throw new Error('You have to provide `aws` subservice name. See README.');
-    }
+    try {
+      if (!pid) {
+        statusResponse.service = "???";
+        throw new Error(
+          "You have to provide `aws` subservice name. See README."
+        );
+      }
 
-    if (pid === 'fail') {
-      statusResponse.message = 'Testing fail';
-      statusResponse.status = status.STATUS_ERROR;
+      if (pid === "fail") {
+        statusResponse.message = "Testing fail";
+        statusResponse.status = status.STATUS_ERROR;
+        return Promise.resolve({ provider: prov, pid, ...statusResponse });
+      }
+
+      const response = await this.getHttp(`${this.url}${pid}.rss`);
+
+      const $ = cheerio.load(response, {
+        ignoreWhitespace: true,
+        xmlMode: true,
+      });
+      const [lastItem] = $("item") || null;
+      statusResponse.service = $("channel > title")
+        .text()
+        .replace(" Service Status", "")
+        .replace("Amazon ", "");
+      if (lastItem) {
+        const title = $("title", lastItem).text();
+        const pubDate = $("pubDate", lastItem).text();
+        statusResponse.message += ` [${pubDate}] ${title}`; // default for UNKNOWN
+
+        if (title.indexOf("Service is operating normally") === 0) {
+          statusResponse.status = status.STATUS_OK;
+          statusResponse.message = `Service is operating normally`;
+        }
+
+        if (
+          title.indexOf("Informational message") === 0 ||
+          title.indexOf("Performance issues") === 0
+        ) {
+          statusResponse.status = status.STATUS_WARNING;
+          statusResponse.message = `WARNING: [${pubDate}] ${title}`;
+        }
+
+        if (title.indexOf("Service disruption") === 0) {
+          statusResponse.status = status.STATUS_ERROR;
+          statusResponse.message = `CRITICAL: [${pubDate}] ${title}`;
+        }
+      } else {
+        statusResponse.status = status.STATUS_OK;
+        statusResponse.message = `OK: No status events`;
+      }
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
+    } catch (e) {
+      statusResponse.message = e.message;
+      statusResponse.status = status.STATUS_WARNING;
       return Promise.resolve({ provider: prov, pid, ...statusResponse });
     }
+  };
+}
 
-    const response = await getHttp(
-      `https://status.aws.amazon.com/rss/${pid}.rss`
-    );
+module.exports = AWSStatus;
 
-    const $ = cheerio.load(response, { ignoreWhitespace: true, xmlMode: true });
-    const [lastItem] = $('item') || null;
-    statusResponse.service = $('channel > title')
-      .text()
-      .replace(' Service Status', '')
-      .replace('Amazon ', '');
-    if (lastItem) {
-      const title = $('title', lastItem).text();
-      const pubDate = $('pubDate', lastItem).text();
-      statusResponse.message += ` [${pubDate}] ${title}`; // default for UNKNOWN
 
-      if (title.indexOf('Service is operating normally') === 0) {
-        statusResponse.status = status.STATUS_OK;
-        statusResponse.message = `Service is operating normally`;
-      }
+/***/ }),
 
-      if (
-        title.indexOf('Informational message') === 0 ||
-        title.indexOf('Performance issues') === 0
-      ) {
+/***/ 2309:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class CloudFlareStatus extends StatusPage {
+  constructor() {
+    super("https://www.cloudflarestatus.com/api/v2/status.json");
+  }
+}
+
+module.exports = CloudFlareStatus;
+
+
+/***/ }),
+
+/***/ 3914:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class DataDogStatus extends StatusPage {
+  constructor() {
+    super("https://status.datadoghq.com/api/v2/status.json");
+  }
+}
+
+module.exports = DataDogStatus;
+
+
+/***/ }),
+
+/***/ 4274:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class HashicorpStatus extends StatusPage {
+  constructor() {
+    super("https://status.hashicorp.com/api/v2/status.json");
+  }
+}
+
+module.exports = HashicorpStatus;
+
+
+/***/ }),
+
+/***/ 2701:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusBase = __nccwpck_require__(3834);
+const status = __nccwpck_require__(6818);
+class HerokuStatus extends StatusBase {
+  constructor() {
+    super(`https://status.heroku.com/api/v4/incidents`);
+  }
+
+  checkStatus = async (providerStatusIdentifier) => {
+    const [prov, pid] = providerStatusIdentifier.split(".");
+
+    const HerokuPidMap = {
+      apps: "Apps",
+      data: "Data",
+      tools: "Tools",
+    };
+
+    const serviceName = pid
+      ? HerokuPidMap[pid]
+      : Object.values(HerokuPidMap).join("/");
+
+    const statusResponse = {
+      service: serviceName,
+      status: status.STATUS_WARNING,
+      message: "UNKNOWN: ",
+    };
+
+    try {
+      const httpResponse = await this.getHttp(this.url);
+      const data = JSON.parse(httpResponse);
+
+      if (data && data.length) {
+        let icon = null;
+        let title = null;
+        let date = null;
+
+        let incidents = data;
+        if (pid) {
+          statusResponse.service = HerokuPidMap[pid];
+          incidents = data.filter((el) =>
+            el.systems.map((x) => x.name).includes(HerokuPidMap[pid])
+          );
+        }
+
+        const unresolved = incidents.filter((el) => el.state !== "resolved");
+        if (unresolved.length) {
+          //check for red
+          const red = incidents.filter((el) => el.systems.status === "red");
+          if (red && red.length) {
+            icon = "red";
+            title = red[0].title;
+            date = red[0].updated_at || red[0].created_at || null;
+          } else {
+            // check for yellow
+            const yellow = incidents.filter(
+              (el) => el.systems.status === "yellow"
+            );
+            if (yellow && yellow.length) {
+              icon = "yellow";
+              title = yellow[0].title;
+              date = yellow[0].updated_at || yellow[0].created_at || null;
+            }
+          }
+        } else {
+          icon = "green";
+        }
+
+        switch (icon) {
+          case "green":
+            statusResponse.status = status.STATUS_OK;
+            statusResponse.message = `No known issues at this time`;
+            break;
+
+          case "red":
+            statusResponse.status = status.STATUS_ERROR;
+            statusResponse.message = `[${date}] ${title}`;
+            break;
+
+          default:
+          case "yellow":
+            statusResponse.status = status.STATUS_WARNING;
+            statusResponse.message = `[${date}] ${title}`;
+            break;
+        }
+      } else {
         statusResponse.status = status.STATUS_WARNING;
-        statusResponse.message = `WARNING: [${pubDate}] ${title}`;
+        statusResponse.message = `Couldn't retrive status`;
       }
-
-      if (title.indexOf('Service disruption') === 0) {
-        statusResponse.status = status.STATUS_ERROR;
-        statusResponse.message = `CRITICAL: [${pubDate}] ${title}`;
-      }
-    } else {
-      statusResponse.status = status.STATUS_OK;
-      statusResponse.message = `OK: No status events`;
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
+    } catch (e) {
+      statusResponse.message = e.message;
+      statusResponse.status = status.STATUS_WARNING;
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
     }
-    return Promise.resolve({ provider: prov, pid, ...statusResponse });
-  } catch (e) {
-    statusResponse.message = e.message;
-    statusResponse.status = status.STATUS_WARNING;
-    return Promise.resolve({ provider: prov, pid, ...statusResponse });
-  }
-};
+  };
+}
 
-const getHttp = async (url) => {
-  const http = new httpm.HttpClient(url);
-  const response = await http.get(url);
-  if (response.message.statusCode != 200) {
-    throw new Error(
-      `${response.message.statusCode} ${response.message.statusMessage}`
-    );
-  }
-  return response.readBody();
-};
+module.exports = HerokuStatus;
 
 
 /***/ }),
@@ -21826,70 +22140,146 @@ const getHttp = async (url) => {
 /***/ 5384:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const httpm = __nccwpck_require__(9925);
 const cheerio = __nccwpck_require__(4612);
+const StatusBase = __nccwpck_require__(3834);
 const status = __nccwpck_require__(6818);
+class MongodbStatus extends StatusBase {
+  constructor() {
+    super(`http://status.mongodb.com/`);
+  }
 
-module.exports.checkStatus = async (providerStatusIdentifier) => {
-    const [prov, passedPid] = providerStatusIdentifier.split('.');
-    const pid = passedPid || '1303731' // cloud.mongodb.com
-  const statusResponse = {
-    service: pid,
-    status: status.STATUS_WARNING,
-    message: 'UNKNOWN: ',
-  };
+  checkStatus = async (providerStatusIdentifier) => {
+    const [prov, passedPid] = providerStatusIdentifier.split(".");
+    const pid = passedPid || "1303731"; // cloud.mongodb.com
+    const statusResponse = {
+      service: pid,
+      status: status.STATUS_WARNING,
+      message: "UNKNOWN: ",
+    };
 
-  try {
-    const response = await getHttp(`http://status.mongodb.com/${pid}`);
-    const $ = cheerio.load(response);
-    const lastChecked = $('#lastChecked') || null;
-    const pidServiceName = $('h1.largeTitle').text() || pid;
-    statusResponse.service = pidServiceName;    
-    if (lastChecked) {
-      const icon = $('#statusIcon', lastChecked).attr('class');
-      const title = $(icon).attr('title') || 'Status unknown';
-      const date = $('p', lastChecked).text() || 'Now';
+    try {
+      const response = await this.getHttp(`${this.url}${pid}`);
+      const $ = cheerio.load(response);
+      const lastChecked = $("#lastChecked") || null;
+      const pidServiceName = $("h1.largeTitle").text() || pid;
+      statusResponse.service = pidServiceName;
+      if (lastChecked) {
+        const icon = $("#statusIcon", lastChecked).attr("class");
+        const title = $(icon).attr("title") || "Status unknown";
+        const date = $("p", lastChecked).text() || "Now";
 
-      switch (icon) {
-        case 'up':
-          statusResponse.status = status.STATUS_OK;
-          statusResponse.message = `Service is operating normally`;
-          break;
+        switch (icon) {
+          case "up":
+            statusResponse.status = status.STATUS_OK;
+            statusResponse.message = `Service is operating normally`;
+            break;
 
-        case 'down':
-          statusResponse.status = status.STATUS_ERROR;
-          statusResponse.message = `[${date}] Service outage`;
-          break;
+          case "down":
+            statusResponse.status = status.STATUS_ERROR;
+            statusResponse.message = `[${date}] Service outage`;
+            break;
 
-        default:
-        case 'paused':
-        case 'unknown':
-          statusResponse.status = status.STATUS_WARNING;
-          statusResponse.message = `[${date}] ${title}`;
-          break;
+          default:
+          case "paused":
+          case "unknown":
+            statusResponse.status = status.STATUS_WARNING;
+            statusResponse.message = `[${date}] ${title}`;
+            break;
+        }
+      } else {
+        statusResponse.status = status.STATUS_WARNING;
+        statusResponse.message = `Couldn't retrive status`;
       }
-    } else {
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
+    } catch (e) {
+      statusResponse.message = e.message;
       statusResponse.status = status.STATUS_WARNING;
-      statusResponse.message = `Couldn't retrive status`;
+      return Promise.resolve({ provider: prov, pid, ...statusResponse });
     }
-    return Promise.resolve({ provider: prov, pid, ...statusResponse });
-  } catch (e) {
-    statusResponse.message = e.message;
-    statusResponse.status = status.STATUS_WARNING;
-    return Promise.resolve({ provider: prov, pid, ...statusResponse });
-  }
-};
+  };
+}
 
-const getHttp = async (url) => {
-  const http = new httpm.HttpClient(url);
-  const response = await http.get(url);
-  if (response.message.statusCode != 200) {
-    throw new Error(
-      `${response.message.statusCode} ${response.message.statusMessage}`
-    );
+module.exports = MongodbStatus;
+
+
+/***/ }),
+
+/***/ 9983:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class NewrelicStatus extends StatusPage {
+  constructor() {
+    super("https://status.newrelic.com/api/v2/status.json");
   }
-  return response.readBody();
-};
+}
+
+module.exports = NewrelicStatus;
+
+
+/***/ }),
+
+/***/ 7599:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class PendoStatus extends StatusPage {
+  constructor() {
+    super("https://status.pendo.io/api/v2/status.json");
+  }
+}
+
+module.exports = PendoStatus;
+
+
+/***/ }),
+
+/***/ 3242:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class SendgridStatus extends StatusPage {
+  constructor() {
+    super("https://status.sendgrid.com/api/v2/status.json");
+  }
+}
+
+module.exports = SendgridStatus;
+
+
+/***/ }),
+
+/***/ 7979:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class SentryStatus extends StatusPage {
+  constructor() {
+    super("https://status.sentry.io/api/v2/status.json");
+  }
+}
+
+module.exports = SentryStatus;
+
+
+/***/ }),
+
+/***/ 7437:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class TwilioStatus extends StatusPage {
+  constructor() {
+    super("https://status.twilio.com/api/v2/status.json");
+  }
+}
+
+module.exports = TwilioStatus;
 
 
 /***/ }),
@@ -22067,7 +22457,7 @@ module.exports = require("util");
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-process.env.FORCE_COLOR = '2';
+process.env.FORCE_COLOR = "2";
 
 const core = __nccwpck_require__(2186);
 const status = __nccwpck_require__(6818);
@@ -22089,17 +22479,17 @@ const dispatch = async (providers) => {
 
 (async () => {
   try {
-    const failwarn_input = core.getInput('fail_on_warning') || 'false';
-    const FAIL_ON_WARNING = failwarn_input.toLowerCase() == 'true';
-    let providers = core.getInput('providers')
-      ? core.getInput('providers').split('\n')
-      : provs.split('\n');
+    const failwarn_input = core.getInput("fail_on_warning") || "false";
+    const FAIL_ON_WARNING = failwarn_input.toLowerCase() == "true";
+    let providers = core.getInput("providers")
+      ? core.getInput("providers").split("\n")
+      : provs.split("\n");
     providers = providers.map((el) => el.trim()).filter((el) => el.length);
     if (providers.length) {
       const result = await dispatch(providers);
       const allResult = [].concat.apply([], result);
       let SUCCESS = true;
-      let MSG = '';
+      let MSG = "";
       allResult.forEach((stat) => {
         const message = ` [${stat.provider.toUpperCase()} ${stat.service}] `;
         switch (stat.status) {
@@ -22156,6 +22546,10 @@ const dispatch = async (providers) => {
     core.setFailed(error.message);
   }
 })();
+
+// DockerHub Status: https://status.docker.com/pages/533c6539221ae15e3f000031/rss
+// GitHub Status: https://www.githubstatus.com/history.rss
+// PyPi Status: https://status.python.org/
 
 })();
 

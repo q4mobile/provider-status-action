@@ -5,10 +5,18 @@ A GitHub Action for checking providers/vendors/services statuses before deployin
 ## Currently supported services
 
 - AWS
-- Mongodb Atlas
+- Atlassian
 - Auth0
+- CloudFlare
 - DataDog
+- HashiCorp
 - Heroku
+- MongoDB Atlas
+- NewRelic
+- Pendo
+- SendGrid
+- Sentry
+- Twilio
 
 ## Inputs
 
@@ -124,3 +132,78 @@ You may provide as many services as you'd like, in this fashion:
       heroku.tools # Tools
       heroku.data # Data
   ```      
+---
+- ### HashiCorp ###
+
+  URL for reference: https://status.hashicorp.com/
+
+  **Syntax**
+  ```yaml
+      hashicorp # All systems
+  ```
+
+---
+- ### Newrelic ###
+
+  URL for reference: https://status.newrelic.com/
+
+  **Syntax**
+  ```yaml
+      newrelic # All systems
+  ```
+---
+- ### Pendo ###
+
+  URL for reference: https://status.pendo.io/
+
+  **Syntax**
+  ```yaml
+      pendo # All systems
+  ```
+---
+- ### SendGrid ###
+
+  URL for reference: https://status.sendgrid.com/
+
+  **Syntax**
+  ```yaml
+      sendgrid # All systems
+  ```
+---
+- ### Sentry ###
+
+  URL for reference: https://status.sentry.io/
+
+  **Syntax**
+  ```yaml
+      sentry # All systems
+  ```
+---
+- ### Twilio ###
+
+  URL for reference: https://status.twilio.com/
+
+  **Syntax**
+  ```yaml
+      twilio # All systems
+  ```
+---
+
+- ### Atlassian ###
+
+  URL for reference: https://status.atlassian.com/
+
+  **Syntax**
+  ```yaml
+      atlassian # All systems
+  ```
+---
+- ### CloudFlare ###
+
+  URL for reference: https://www.cloudflarestatus.com/
+
+  **Syntax**
+  ```yaml
+      cloudflare # All systems
+  ```
+
