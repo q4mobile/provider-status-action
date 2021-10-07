@@ -21457,8 +21457,9 @@ module.exports = Object.freeze({
     "sentry",
     "hashicorp",
     "github",
-    "snowflake"
-  ],
+    "snowflake",
+    "npmjs"
+ ],
 });
 
 
@@ -21480,6 +21481,7 @@ function __ncc_wildcard$0 (arg) {
   else if (arg === "heroku") return __nccwpck_require__(2701);
   else if (arg === "mongodb") return __nccwpck_require__(5384);
   else if (arg === "newrelic") return __nccwpck_require__(9983);
+  else if (arg === "npmjs") return __nccwpck_require__(9418);
   else if (arg === "pendo") return __nccwpck_require__(7599);
   else if (arg === "sendgrid") return __nccwpck_require__(3242);
   else if (arg === "sentry") return __nccwpck_require__(7979);
@@ -22059,6 +22061,22 @@ module.exports = NewrelicStatus;
 
 /***/ }),
 
+/***/ 9418:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class NpmjsStatus extends StatusPage {
+  constructor() {
+    super("https://status.npmjs.org/api/v2/status.json");
+  }
+}
+
+module.exports = NpmjsStatus;
+
+
+/***/ }),
+
 /***/ 7599:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -22339,7 +22357,8 @@ cloudflare
 sentry
 hashicorp
 github
-snowflake`;
+snowflake
+npmjs`;
 
 const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);

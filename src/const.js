@@ -20,6 +20,7 @@ module.exports = Object.freeze({
     "sentry",
     "hashicorp",
     "github",
-    "snowflake"
+    "snowflake",
+    "npmjs"
   ],
 });

@@ -14,6 +14,7 @@ A GitHub Action for checking providers/vendors/services statuses before deployin
 - Heroku
 - MongoDB Atlas
 - NewRelic
+- NpmJs
 - Pendo
 - SendGrid
 - Sentry
@@ -226,4 +227,12 @@ You may provide as many services as you'd like, in this fashion:
   **Syntax**
   ```yaml
       snowflake # All systems
+  ```
+- ### NPMJS ###
+
+  URL for reference: https://status.npmjs.org/
+
+  **Syntax**
+  ```yaml
+      npmjs # All systems
   ```
