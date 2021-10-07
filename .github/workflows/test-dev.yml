@@ -35,3 +35,32 @@ jobs:
             mongodb
             mongodb.4343523
 
+  test-main:
+    runs-on: ubuntu-latest
+    name: Testing Main
+    steps:
+      - name: Providers status
+        uses: gardarik/provider-status-action@v1.0.3
+        with:
+          fail_on_warning: false
+          providers: |
+            aws.cloudfront
+            aws.apigateway-us-east-1
+            heroku
+            heroku.apps
+            aws.lambda-us-east-1
+            datadog
+            aws.route53privatedns-us-east-1
+            mongodb
+            auth0.749624
+            auth0
+            twilio
+            atlassian
+            newrelic
+            pendo
+            sendgrid
+            cloudflare
+            sentry
+            hashicorp
+            github
+            snowflake

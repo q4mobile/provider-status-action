@@ -9,13 +9,16 @@ A GitHub Action for checking providers/vendors/services statuses before deployin
 - Auth0
 - CloudFlare
 - DataDog
+- GitHub
 - HashiCorp
 - Heroku
 - MongoDB Atlas
 - NewRelic
+- NpmJs
 - Pendo
 - SendGrid
 - Sentry
+- SnowFlake
 - Twilio
 
 ## Inputs
@@ -207,3 +210,29 @@ You may provide as many services as you'd like, in this fashion:
       cloudflare # All systems
   ```
 
+---
+- ### Github ###
+
+  URL for reference: https://www.githubstatus.com//
+
+  **Syntax**
+  ```yaml
+      github # All systems
+  ```
+---
+- ### SnowFlake ###
+
+  URL for reference: https://status.snowflake.com/
+
+  **Syntax**
+  ```yaml
+      snowflake # All systems
+  ```
+- ### NPMJS ###
+
+  URL for reference: https://status.npmjs.org/
+
+  **Syntax**
+  ```yaml
+      npmjs # All systems
+  ```

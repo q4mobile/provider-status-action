@@ -18,6 +18,9 @@ module.exports = Object.freeze({
     "newrelic",
     "cloudflare",
     "sentry",
-    "hashicorp"
+    "hashicorp",
+    "github",
+    "snowflake",
+    "npmjs"
   ],
 });

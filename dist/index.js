@@ -21455,7 +21455,10 @@ module.exports = Object.freeze({
     "newrelic",
     "cloudflare",
     "sentry",
-    "hashicorp"
+    "hashicorp",
+    "github",
+    "snowflake",
+    "npmjs"
   ],
 });
 
@@ -21473,13 +21476,16 @@ function __ncc_wildcard$0 (arg) {
   else if (arg === "aws") return __nccwpck_require__(7662);
   else if (arg === "cloudflare") return __nccwpck_require__(2309);
   else if (arg === "datadog") return __nccwpck_require__(3914);
+  else if (arg === "github") return __nccwpck_require__(3335);
   else if (arg === "hashicorp") return __nccwpck_require__(4274);
   else if (arg === "heroku") return __nccwpck_require__(2701);
   else if (arg === "mongodb") return __nccwpck_require__(5384);
   else if (arg === "newrelic") return __nccwpck_require__(9983);
+  else if (arg === "npmjs") return __nccwpck_require__(9418);
   else if (arg === "pendo") return __nccwpck_require__(7599);
   else if (arg === "sendgrid") return __nccwpck_require__(3242);
   else if (arg === "sentry") return __nccwpck_require__(7979);
+  else if (arg === "snowflake") return __nccwpck_require__(1699);
   else if (arg === "twilio") return __nccwpck_require__(7437);
 }
 const status = __nccwpck_require__(6818);
@@ -21836,6 +21842,22 @@ module.exports = DataDogStatus;
 
 /***/ }),
 
+/***/ 3335:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class GitHubStatus extends StatusPage {
+  constructor() {
+    super("https://www.githubstatus.com/api/v2/status.json");
+  }
+}
+
+module.exports = GitHubStatus;
+
+
+/***/ }),
+
 /***/ 4274:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -22039,6 +22061,22 @@ module.exports = NewrelicStatus;
 
 /***/ }),
 
+/***/ 9418:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class NpmjsStatus extends StatusPage {
+  constructor() {
+    super("https://status.npmjs.org/api/v2/status.json");
+  }
+}
+
+module.exports = NpmjsStatus;
+
+
+/***/ }),
+
 /***/ 7599:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -22083,6 +22121,22 @@ class SentryStatus extends StatusPage {
 }
 
 module.exports = SentryStatus;
+
+
+/***/ }),
+
+/***/ 1699:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const StatusPage = __nccwpck_require__(7803);
+
+class SnowFlakeStatus extends StatusPage {
+  constructor() {
+    super("https://status.snowflake.com/api/v2/status.json");
+  }
+}
+
+module.exports = SnowFlakeStatus;
 
 
 /***/ }),
@@ -22284,7 +22338,27 @@ const chalk = __nccwpck_require__(8818);
 
 const dispatcher = __nccwpck_require__(8921);
 
-const provs = ``;
+const provs = `aws.cloudfront
+aws.apigateway-us-east-1
+heroku
+heroku.apps
+aws.lambda-us-east-1
+datadog
+aws.route53privatedns-us-east-1
+mongodb
+auth0.749624
+auth0
+twilio
+atlassian
+newrelic
+pendo
+sendgrid
+cloudflare
+sentry
+hashicorp
+github
+snowflake
+npmjs`;
 
 const dispatch = async (providers) => {
   const providerObj = dispatcher.dispatchProviders(providers);
