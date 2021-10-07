@@ -21459,7 +21459,7 @@ module.exports = Object.freeze({
     "github",
     "snowflake",
     "npmjs"
-  ],
+ ],
 });
 
 
